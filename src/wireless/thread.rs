@@ -503,10 +503,22 @@ where
         let sys =
             self.stack
                 .root_handler(&false, &(), &(), &net_ctl, &(), self.crypto.weak_rand()?);
+        // Route the ICD Management cluster (0x0046) on the root endpoint to the user
+        // handler *before* the endpoint-0 catch-all below: the `sys` chain terminates
+        // in `EmptyHandler`, so no endpoint-0 request ever falls through to the user
+        // handler otherwise, and ICD Management is the one root-node cluster the
+        // stack does not serve itself.
         let combined = ChainedHandler::new(
-            EpClMatcher::new(Some(ROOT_ENDPOINT_ID), None),
-            sys,
+            EpClMatcher::new(
+                Some(ROOT_ENDPOINT_ID),
+                Some(rs_matter::dm::clusters::decl::icd_management::FULL_CLUSTER.id),
+            ),
             &self.handler,
+            ChainedHandler::new(
+                EpClMatcher::new(Some(ROOT_ENDPOINT_ID), None),
+                sys,
+                &self.handler,
+            ),
         );
         // The network store comes from the stack's `state`; the (commissioning)
         // net-ctl is threaded into the engine, whose `run` keeps its connection
@@ -561,10 +573,22 @@ where
             &(),
             self.crypto.weak_rand()?,
         );
+        // Route the ICD Management cluster (0x0046) on the root endpoint to the user
+        // handler *before* the endpoint-0 catch-all below: the `sys` chain terminates
+        // in `EmptyHandler`, so no endpoint-0 request ever falls through to the user
+        // handler otherwise, and ICD Management is the one root-node cluster the
+        // stack does not serve itself.
         let combined = ChainedHandler::new(
-            EpClMatcher::new(Some(ROOT_ENDPOINT_ID), None),
-            sys,
+            EpClMatcher::new(
+                Some(ROOT_ENDPOINT_ID),
+                Some(rs_matter::dm::clusters::decl::icd_management::FULL_CLUSTER.id),
+            ),
             &self.handler,
+            ChainedHandler::new(
+                EpClMatcher::new(Some(ROOT_ENDPOINT_ID), None),
+                sys,
+                &self.handler,
+            ),
         );
         // The operational `net_ctl` is threaded into the engine, which now drives
         // the maintenance `WirelessMgr` itself (against the stack's networks store).
@@ -683,10 +707,22 @@ where
             &(),
             self.crypto.weak_rand()?,
         );
+        // Route the ICD Management cluster (0x0046) on the root endpoint to the user
+        // handler *before* the endpoint-0 catch-all below: the `sys` chain terminates
+        // in `EmptyHandler`, so no endpoint-0 request ever falls through to the user
+        // handler otherwise, and ICD Management is the one root-node cluster the
+        // stack does not serve itself.
         let combined = ChainedHandler::new(
-            EpClMatcher::new(Some(ROOT_ENDPOINT_ID), None),
-            sys,
+            EpClMatcher::new(
+                Some(ROOT_ENDPOINT_ID),
+                Some(rs_matter::dm::clusters::decl::icd_management::FULL_CLUSTER.id),
+            ),
             &self.handler,
+            ChainedHandler::new(
+                EpClMatcher::new(Some(ROOT_ENDPOINT_ID), None),
+                sys,
+                &self.handler,
+            ),
         );
         // The operational `net_ctl` is threaded into the engine, which drives the
         // maintenance `WirelessMgr` itself; `run_net_coex` only runs the BTP coex
