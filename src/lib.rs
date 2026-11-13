@@ -365,6 +365,17 @@ where
         &self.network
     }
 
+    /// Get a reference to the subscriptions table of the stack's interaction-model state.
+    ///
+    /// Lets an ICD application test `Subscriptions::has_subscription_for` when deciding
+    /// which registered Check-In clients need a nudge; `Icd::send_check_in` takes the same
+    /// table as an argument.
+    pub const fn subscriptions(
+        &self,
+    ) -> &rs_matter::im::subscriptions::Subscriptions<MAX_SUBSCRIPTIONS> {
+        self.state.subscriptions()
+    }
+
     /// Create a new shared `KvBlobStore` instance, which is used to read and write blobs from the storage.
     ///
     /// The user needs to provide a `KvBlobStore` implementation, which is used to actually read and write the blobs from the storage.
